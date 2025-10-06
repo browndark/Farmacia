@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="8"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.brufarma.farmacia.controller.MedicamentoController">
+
+    <children>
+        <HBox spacing="8">
+            <children>
+                <TextField fx:id="txtCodigo"    promptText="Código (7 chars)"/>
+                <TextField fx:id="txtNome"      promptText="Nome"/>
+                <TextField fx:id="txtDescricao" promptText="Descrição"/>
+                <TextField fx:id="txtPrincipio" promptText="Princípio ativo"/>
+                <DatePicker fx:id="dpValidade"  promptText="Validade"/>
+                <TextField fx:id="txtQtd"       promptText="Qtd"/>
+                <TextField fx:id="txtPreco"     promptText="Preço"/>
+                <CheckBox  fx:id="chkControlado" text="Controlado"/>
+            </children>
+        </HBox>
+
+        <TitledPane text="Fornecedor" expanded="false">
+            <content>
+                <HBox spacing="8">
+                    <children>
+                        <TextField fx:id="txtCnpj"     promptText="CNPJ (14 dígitos)"/>
+                        <TextField fx:id="txtRazao"    promptText="Razão Social"/>
+                        <TextField fx:id="txtTelefone" promptText="Telefone"/>
+                        <TextField fx:id="txtEmail"    promptText="Email"/>
+                        <TextField fx:id="txtCidade"   promptText="Cidade"/>
+                        <TextField fx:id="txtEstado"   promptText="UF"/>
+                    </children>
+                </HBox>
+            </content>
+        </TitledPane>
+
+        <HBox spacing="8">
+            <children>
+                <Button text="Cadastrar" onAction="#onCadastrar"/>
+                <Button text="Buscar"    onAction="#onBuscar"/>
+                <Button text="Atualizar" onAction="#onAtualizar"/>
+                <Button text="Excluir"   onAction="#onExcluir"/>
+                <TextField fx:id="txtBusca" promptText="Código para buscar"/>
+            </children>
+        </HBox>
+
+        <TableView fx:id="tabela" prefHeight="280">
+            <columns>
+                <TableColumn fx:id="colCodigo"     text="Código"     prefWidth="90"/>
+                <TableColumn fx:id="colNome"       text="Nome"       prefWidth="140"/>
+                <TableColumn fx:id="colQtd"        text="Qtd"        prefWidth="60"/>
+                <TableColumn fx:id="colPreco"      text="Preço"      prefWidth="80"/>
+                <TableColumn fx:id="colFornecedor" text="Fornecedor" prefWidth="160"/>
+            </columns>
+        </TableView>
+
+        <Label fx:id="lblStatus" text="Pronto."/>
+    </children>
+
+    <padding>
+        <Insets topRightBottomLeft="10"/>
+    </padding>
+</VBox>
