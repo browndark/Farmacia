@@ -1,4 +1,5 @@
 package com.brufarma.farmacia.controller;
+
 import com.brufarma.farmacia.model.Fornecedor;
 import com.brufarma.farmacia.model.Medicamento;
 import com.brufarma.farmacia.service.CsvRepository;
@@ -9,6 +10,10 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.Region;
+<<<<<<< HEAD
+
+=======
+>>>>>>> e3bb8bc7d66f36d78b2423bcafc56ff4db95dda3
 import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;

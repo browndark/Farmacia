@@ -43,7 +43,10 @@
                 <Button text="Buscar"    onAction="#onBuscar"/>
                 <Button text="Atualizar" onAction="#onAtualizar"/>
                 <Button text="Excluir"   onAction="#onExcluir"/>
+<<<<<<< HEAD
+=======
                 <!-- BOTÃO DO RELATÓRIO -->
+>>>>>>> e3bb8bc7d66f36d78b2423bcafc56ff4db95dda3
                 <Button text="Vencem ≤30d" onAction="#onVencem30d"/>
                 <TextField fx:id="txtBusca" promptText="Código para buscar"/>
             </children>
