@@ -43,6 +43,8 @@
                 <Button text="Buscar"    onAction="#onBuscar"/>
                 <Button text="Atualizar" onAction="#onAtualizar"/>
                 <Button text="Excluir"   onAction="#onExcluir"/>
+                <!-- BOTÃO DO RELATÓRIO -->
+                <Button text="Vencem ≤30d" onAction="#onVencem30d"/>
                 <TextField fx:id="txtBusca" promptText="Código para buscar"/>
             </children>
         </HBox>
