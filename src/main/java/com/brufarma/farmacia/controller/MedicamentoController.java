@@ -3,12 +3,16 @@ import com.brufarma.farmacia.model.Fornecedor;
 import com.brufarma.farmacia.model.Medicamento;
 import com.brufarma.farmacia.service.CsvRepository;
 import com.brufarma.farmacia.service.MedicamentoService;
+import com.brufarma.farmacia.service.RelatorioService;
 import com.brufarma.farmacia.util.Validacao;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.Region;
 import java.io.File;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class MedicamentoController {
 
@@ -25,27 +29,41 @@ public class MedicamentoController {
     @FXML private Label lblStatus;
 
     private MedicamentoService service;
+    private RelatorioService relatorios;
 
     @FXML
     public void initialize() {
-        // caminho simples para dev/local. Se preferir empacotar, troque por getResource().
+        // Caminho simples para dev/local. (Se empacotar, troque para getResourceAsStream no repo)
         File csv = new File("src/main/resources/data/medicamentos.csv");
         service = new MedicamentoService(new CsvRepository(csv));
+        relatorios = new RelatorioService(service);
 
+        // Colunas da tabela (com null-safety)
         colCodigo.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(c.getValue().getCodigo()));
+                new javafx.beans.property.SimpleStringProperty(
+                        c.getValue() == null ? "" : c.getValue().getCodigo()
+                ));
         colNome.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(c.getValue().getNome()));
+                new javafx.beans.property.SimpleStringProperty(
+                        c.getValue() == null ? "" : c.getValue().getNome()
+                ));
         colQtd.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleIntegerProperty(c.getValue().getQuantidadeEstoque()).asObject());
+                new javafx.beans.property.SimpleIntegerProperty(
+                        c.getValue() == null ? 0 : c.getValue().getQuantidadeEstoque()
+                ).asObject());
         colPreco.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(c.getValue().getPreco().toString()));
+                new javafx.beans.property.SimpleStringProperty(
+                        (c.getValue() == null || c.getValue().getPreco() == null)
+                                ? "" : c.getValue().getPreco().toString()
+                ));
         colFornecedor.setCellValueFactory(c ->
                 new javafx.beans.property.SimpleStringProperty(
-                        c.getValue().getFornecedor() != null ? c.getValue().getFornecedor().getRazaoSocial() : ""
+                        (c.getValue() != null && c.getValue().getFornecedor() != null)
+                                ? c.getValue().getFornecedor().getRazaoSocial() : ""
                 ));
 
         atualizarTabela();
+        status("Pronto.");
     }
 
     private void atualizarTabela() {
@@ -58,7 +76,6 @@ public class MedicamentoController {
     public void onCadastrar() {
         try {
             Medicamento m = lerFormulario();
-
             if (service.cadastrar(m)) {
                 status("Cadastrado.");
                 atualizarTabela();
@@ -107,15 +124,39 @@ public class MedicamentoController {
         }
     }
 
+    // === RELATÓRIO: Vencem ≤30 dias ===
+
+    @FXML
+    public void onVencem30d() {
+        var lista = relatorios.proximosAoVencimento(); // List<Medicamento>
+        String msg = lista.isEmpty()
+                ? "Nenhum medicamento vence em até 30 dias."
+                : lista.stream()
+                .map(m -> {
+                    LocalDate hoje = LocalDate.now();
+                    long dias = ChronoUnit.DAYS.between(hoje, m.getDataValidade());
+                    if (dias < 0) dias = 0; // evita negativo se já venceu
+                    return m.getNome() + " (" + m.getCodigo() + ") — vence em "
+                            + dias + " dia(s) [" + m.getDataValidade() + "]";
+                })
+                .reduce("", (a, b) -> a.isEmpty() ? b : a + "\n" + b);
+
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setTitle("Relatório");
+        a.setHeaderText("Vencem em até 30 dias");
+        a.setContentText(msg);
+        a.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        a.showAndWait();
+    }
+
     // === UTILITÁRIOS ===
 
     private Medicamento lerFormulario() {
-        // (Opcional) Validações simples – ajuste se quiser usar sua classe Validacao
         if (!Validacao.naoVazio(txtCodigo.getText()))
             throw new IllegalArgumentException("Código é obrigatório.");
 
-        int qtd = Integer.parseInt(txtQtd.getText().trim());
-        BigDecimal preco = new BigDecimal(txtPreco.getText().trim());
+        int qtd = Validacao.parseInt(txtQtd.getText(), "Qtd");
+        BigDecimal preco = Validacao.parseBig(txtPreco.getText(), "Preço");
 
         Fornecedor f = new Fornecedor(
                 txtCnpj.getText(), txtRazao.getText(), txtTelefone.getText(),
@@ -142,7 +183,7 @@ public class MedicamentoController {
         txtPrincipio.setText(m.getPrincipioAtivo());
         dpValidade.setValue(m.getDataValidade());
         txtQtd.setText(String.valueOf(m.getQuantidadeEstoque()));
-        txtPreco.setText(m.getPreco().toString());
+        txtPreco.setText(m.getPreco() == null ? "" : m.getPreco().toString());
         chkControlado.setSelected(m.isControlado());
 
         if (m.getFornecedor() != null) {
